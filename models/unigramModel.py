@@ -2,7 +2,7 @@ import random
 from nGramModel import *
 
 class UnigramModel(NGramModel):
-
+    
     def __init__(self):
         """
         Requires: nothing
@@ -13,7 +13,7 @@ class UnigramModel(NGramModel):
                   constructor.
         """
         super(UnigramModel, self).__init__()
-
+    
     def trainModel(self, text):
         """
         Requires: text is a list of lists of strings
@@ -22,22 +22,38 @@ class UnigramModel(NGramModel):
                   which is a dictionary of {string: integer} pairs.
                   For further explanation of UnigramModel's version of
                   self.nGramCounts, see the spec.
-
-                  Note: make sure to use the return value of prepData to
-                  populate the dictionary, which will allow the special
-                  symbols to be included as their own tokens in
-                  self.nGramCounts. For more details, see the spec.
+            
+                Note: make sure to use the return value of prepData to
+                populate the dictionary, which will allow the special
+                symbols to be included as their own tokens in
+                self.nGramCounts. For more details, see the spec.
         """
-        pass
+        textData=self.prepData(text)  #might be wrong
+        self.nGramCounts
+        for line in textData:
+            for x in range(2,len(line)):
+                value=self.nGramCounts.get(line[x], 0)
+                value=value+1
+                self.nGramCounts[line[x]]=value
+        
+        
+        
+        
+    pass
 
     def trainingDataHasNGram(self, sentence):
         """
-        Requires: sentence is a list of strings
-        Modifies: nothing
-        Effects:  returns True if this n-gram model can be used to choose
-                  the next token for the sentence. For explanations of how this
-                  is determined for the UnigramModel, see the spec.
+            Requires: sentence is a list of strings
+            Modifies: nothing
+            Effects:  returns True if this n-gram model can be used to choose
+                      the next token for the sentence. For explanations of how this
+                      is determined for the UnigramModel, see the spec.
         """
+        if(len(self.nGramCounts)!=0):
+            return True
+                    
+        else:
+            return False
         pass
 
     def getCandidateDictionary(self, sentence):
@@ -49,6 +65,8 @@ class UnigramModel(NGramModel):
                   to the current sentence. For details on which words the
                   UnigramModel sees as candidates, see the spec.
         """
+        return self.nGramCounts
+                
         pass
 
 ###############################################################################
@@ -57,7 +75,21 @@ class UnigramModel(NGramModel):
 
 if __name__ == '__main__':
     # Add your test cases here
-    text = [ ['the', 'quick', 'brown', 'fox'], ['the', 'lazy', 'dog'] ]
+    text = [ ['the', 'quick', 'brown', 'fox', 'brown'], ['the', 'lazy', 'dog'] ]
     sentence = [ 'brown' ]
+    sentence2 = [ 'wrong' ]
     unigramModel = UnigramModel()
+    unigramModel.trainModel(text)
+    
+    unigramModel1=UnigramModel()
+    unigramModel.trainModel(text)
+    unigramModel.trainingDataHasNGram(sentence)
+    unigramModel.trainingDataHasNGram(sentence2)
+    unigramModel1.trainingDataHasNGram(sentence)
+    unigramModel1.trainingDataHasNGram(sentence2)
+    unigramModel1.getCandidateDictionary(sentence)
+    unigramModel1.getCandidateDictionary(sentence2)
+    unigramModel.getCandidateDictionary(sentence)
+    unigramModel.getCandidateDictionary(sentence)
     print(unigramModel)
+    unigramModel.getNextToken(sentence)
