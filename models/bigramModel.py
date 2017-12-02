@@ -30,7 +30,16 @@ class BigramModel(NGramModel):
                   symbols to be included as their own tokens in
                   self.nGramCounts. For more details, see the spec.
         """
-        
+        textData = self.prepData(text)
+        self.nGramCounts = {}
+        sub_diction = {}
+        for phrase in textData:
+            for i in range(1, len(phrase) - 1):
+                if self.nGramCounts.get(phrase[i], 0) == 0:
+                    self.nGramCounts[phrase[i]] = {}
+                a = self.nGramCounts[phrase[i]].get(phrase[i + 1], 0) + 1
+                b = phrase[i + 1]
+                self.nGramCounts[phrase[i]].update({b: a})
         pass
 
     def trainingDataHasNGram(self, sentence):
@@ -41,6 +50,10 @@ class BigramModel(NGramModel):
                   the next token for the sentence. For explanations of how this
                   is determined for the BigramModel, see the spec.
         """
+        word=sentence[len(sentence)-1]
+        if word in self.nGramCounts:
+            return True
+        return False
         pass
 
     def getCandidateDictionary(self, sentence):
@@ -52,6 +65,9 @@ class BigramModel(NGramModel):
                   to the current sentence. For details on which words the
                   BigramModel sees as candidates, see the spec.
         """
+        word=sentence[len(sentence)-1]
+        dictionary=self.nGramCounts.get(word)
+        return dictionary
         pass
 
 ###############################################################################
@@ -63,7 +79,14 @@ if __name__ == '__main__':
     text = [ ['the', 'quick', 'brown', 'fox'], ['the', 'lazy', 'dog'] ]
     text.append([ 'quick', 'brown' ])
     sentence = [ 'lazy', 'quick' ]
+    sentence1=[ 'wrong', 'right' ]
+    sentence3=[ 'lazy', 'the']
     bigramModel = BigramModel()
+    bigramModel.trainModel(text)
+    print bigramModel.trainingDataHasNGram(sentence)
+    print bigramModel.trainingDataHasNGram(sentence1)
     print(bigramModel)
+    print bigramModel.getCandidateDictionary(sentence3)
+    print bigramModel.getCandidateDictionary(sentence)
 
 

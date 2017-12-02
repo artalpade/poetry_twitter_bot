@@ -58,6 +58,7 @@ class NGramModel(object):
                   override it in the NGramModel child classes according
                   to the spec.
         """
+
         pass
 
     def trainingDataHasNGram(self, sentence):
@@ -92,6 +93,16 @@ class NGramModel(object):
         Effects:  returns a candidate item (a key in the candidates dictionary)
                   based on the algorithm described in the spec.
         """
+        keys=candidates.keys()
+        values=candidates.values()
+        cumulative =[values[0]]
+        for x in range(len(values)):
+            if (x!=0):
+                cumulative.append(values[x]+cumulative[x-1])
+        number=random.randrange(0,cumulative[len(cumulative)-1])
+        for x in range(len(cumulative)):
+            if(cumulative[x]>number):
+                return keys[x]
         pass
 
     def getNextToken(self, sentence):
@@ -104,6 +115,9 @@ class NGramModel(object):
                   For more information on how to put all these functions
                   together, see the spec.
         """
+        x=self.getCandidateDictionary(sentence)
+        z= self.weightedChoice(x)
+        return z
         pass
 
     def getNextNote(self, musicalSentence, possiblePitches):
@@ -118,6 +132,20 @@ class NGramModel(object):
                   For details on how to do this and how this will differ
                   from getNextToken, see the spec.
         """
+        allCandidates = self.getCandidateDictionary(musicalSentence)
+        constrainedCandidates = {}
+        empty = {}
+        for i in allCandidates:
+            for j in possiblePitches:
+                if i[0][0: len(i[0]) - 1] == j[0]:  # and i[1] == j[1]:
+                    constrainedCandidates.update({i: allCandidates.get(i, 0)})
+                if i == '$:::$':
+                    constrainedCandidates.update({i: allCandidates.get(i, 0)})
+        if constrainedCandidates != empty:
+            return self.weightedChoice(constrainedCandidates)
+        else:
+            tup = (random.choice(possiblePitches).append(4), random.choice(NOTE_DURATIONS))
+            return tup
         pass
 
 ###############################################################################
@@ -126,7 +154,13 @@ class NGramModel(object):
 
 if __name__ == '__main__':
     # Add your tests here
+    #text = [ ['the', 'quick', 'brown', 'fox'], ['the', 'lazy', 'dog'] ]
+    #choices = { 'the': 2, 'quick': 1, 'brown': 1 }
+
     text = [ ['the', 'quick', 'brown', 'fox'], ['the', 'lazy', 'dog'] ]
-    choices = { 'the': 2, 'quick': 1, 'brown': 1 }
-    nGramModel = NGramModel()
+    text.append([ 'quick', 'brown' ])
+    sentence=["lazy", "quick"]
+    nGramModel = ngramModel()
+    nGramModel.trainModel(text)
     print(nGramModel)
+    print nGramModel.getCandidateDictionary(sentence)

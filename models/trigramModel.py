@@ -29,6 +29,19 @@ class TrigramModel(NGramModel):
                   symbols to be included as their own tokens in
                   self.nGramCounts. For more details, see the spec.
         """
+        textData = self.prepData(text)
+        self.nGramCounts = {}
+        sub_diction = {}
+        for phrase in textData:
+            for i in range(0, len(phrase) - 2):
+                if self.nGramCounts.get(phrase[i], 0) == 0:
+                    self.nGramCounts[phrase[i]] = {}
+                if self.nGramCounts[phrase[i]].get(phrase[i + 1], 0) == 0:
+                    self.nGramCounts[phrase[i]][phrase[i + 1]] = {}
+                a = self.nGramCounts[phrase[i]][phrase[i + 1]].get(phrase[i + 2], 0) + 1
+                b = phrase[i + 1]
+                c = phrase[i + 2]
+                self.nGramCounts[phrase[i]][b].update({c: a})
         pass
 
     def trainingDataHasNGram(self, sentence):
@@ -39,6 +52,12 @@ class TrigramModel(NGramModel):
                   the next token for the sentence. For explanations of how this
                   is determined for the TrigramModel, see the spec.
         """
+        word1 = sentence[len(sentence)-2]
+        word2 = sentence[len(sentence)-1]
+        if word1 in self.nGramCounts:
+            if word2 in self.nGramCounts[word1]:
+                return True
+        return False
         pass
 
     def getCandidateDictionary(self, sentence):
@@ -50,6 +69,11 @@ class TrigramModel(NGramModel):
                   to the current sentence. For details on which words the
                   TrigramModel sees as candidates, see the spec.
         """
+        word1=sentence[len(sentence)-2]
+        word2=sentence[len(sentence)-1]
+        bigDict=self.nGramCounts.get(word1,0)
+        realDict=bigDict.get(word2,0)
+        return realDict
         pass
 
 
@@ -62,6 +86,10 @@ if __name__ == '__main__':
     text = [ ['the', 'quick', 'brown', 'fox'], ['the', 'lazy', 'dog'] ]
     sentence = [ 'the', 'quick', 'brown' ]
     trigramModel = TrigramModel()
+    trigramModel.trainModel(text)
+    print trigramModel.trainingDataHasNGram(sentence)
     print(trigramModel)
+    print trigramModel.getCandidateDictionary(sentence)
+
 
 

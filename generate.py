@@ -59,7 +59,7 @@ def trainLyricModels(lyricDirs):
     """
     models = [TrigramModel(), BigramModel(), UnigramModel()]
     for ldir in lyricDirs:
-        lyrics = dataLoader.loadLyrics(ldir)
+        lyrics = loadLyrics(ldir)
         for model in models:
             model.trainModel(lyrics)
     return models
@@ -81,7 +81,11 @@ def trainMusicModels(musicDirs):
     """
     models = [TrigramModel(), BigramModel(), UnigramModel()]
     # call dataLoader.loadMusic for each directory in musicDirs
-
+    for mdir in musicDirs:
+        music=loadMusic(mdir)
+        for model in models:
+            model.trainModel(music)
+    return models
     pass
 
 def selectNGramModel(models, sentence):
@@ -94,6 +98,9 @@ def selectNGramModel(models, sentence):
               (Remember that you wrote a function that checks if a model can
               be used to pick a word for a sentence!)
     """
+    for gram in models:
+        if gram.trainingDataHasNGram(sentence):
+            return gram
     pass
 
 def generateLyricalSentence(models, desiredLength):
@@ -109,7 +116,33 @@ def generateLyricalSentence(models, desiredLength):
               For more details about generating a sentence using the
               NGramModels, see the spec.
     """
+    """""
     sentence = ['^::^', '^:::^']
+    resultList = sentence
+    while  not sentenceTooLong(desiredLength, len(sentence)):
+        model = selectNGramModel(models, sentence)
+        models.remove(model)
+        while not sentenceTooLong(desiredLength, len(sentence)) and model.getNextToken != '^::^' and model.getNextToken != '^:::^' and model.getNextToken != '$:::$':
+            resultList.append(model.getNextToken(sentence))
+        if model.getNextToken == '$:::$':
+            break
+        model = selectNGramModel(models, sentence)
+    return resultList
+"""
+    # return a list of strings
+    # loop until sentenceTooLong returns true or next token chose
+    # adds a word
+    results = []
+    sentence = selectNGramModel(models, ['^::^', '^:::^']).getNextToken(['^::^', '^:::^'])
+
+
+    while sentence !='$:::$':
+        if sentenceTooLong(desiredLength, len(results)):
+            break
+        results.append(sentence)
+        sentence = selectNGramModel(models, results).getNextToken(results)
+
+    return results
     pass
 
 def generateMusicalSentence(models, desiredLength, possiblePitches):
@@ -121,7 +154,16 @@ def generateMusicalSentence(models, desiredLength, possiblePitches):
               function instead of getNextToken(). Everything else
               should be exactly the same as the core.
     """
-    sentence = ['^::^', '^:::^']
+    results = []
+    sentence = selectNGramModel(models, ['^::^', '^:::^']).getNextNote(['^::^', '^:::^'], possiblePitches)
+
+    while sentence != '$:::$':
+        if sentenceTooLong(desiredLength, len(results)):
+            break
+        results.append(sentence)
+        sentence = selectNGramModel(models, results).getNextNote(results, possiblePitches)
+
+    return results
     pass
 
 def runLyricsGenerator(models):
@@ -131,10 +173,17 @@ def runLyricsGenerator(models):
     Effects:  generates a verse one, a verse two, and a chorus, then
               calls printSongLyrics to print the song out.
     """
+
     verseOne = []
+    for x in range(0, 4):
+        verseOne.append(generateLyricalSentence(models, 6))
     verseTwo = []
+    for x in range(0, 4):
+        verseTwo.append(generateLyricalSentence(models, 6))
     chorus = []
-    pass
+    for x in range(0, 4):
+        chorus.append(generateLyricalSentence(models, 6))
+    printSongLyrics(verseOne, verseTwo, chorus)
 
 def runMusicGenerator(models, songName):
     """
@@ -142,6 +191,13 @@ def runMusicGenerator(models, songName):
     Modifies: nothing
     Effects:  runs the music generator as following the details in the spec.
     """
+    list = KEY_SIGNATURES.keys()
+    desiredLength = 5
+    value = random.choice(list)
+    possiblePitches = KEY_SIGNATURES[value]
+    tuplesList = generateMusicalSentence(models, desiredLength,possiblePitches)
+    pysynth.make_wav(tuplesList, songName)
+
     pass
 
 ###############################################################################
@@ -155,6 +211,7 @@ PROMPT = """
 > """
 
 def main():
+    print 'random'
     """
     Requires: Nothing
     Modifies: Nothing
@@ -164,10 +221,10 @@ def main():
               It prompts the user to choose to generate either lyrics or music.
     """
     # FIXME uncomment these lines when ready
-    # print('Starting program and loading data...')
-    # lyricsModels = trainLyricsModels(LYRICSDIRS)
-    # musicModels = trainMusicModels(MUSICDIRS)
-    # print('Data successfully loaded')
+    print('Starting program and loading data...')
+    lyricsModels = trainLyricModels(LYRICSDIRS)
+    musicModels = trainMusicModels(MUSICDIRS)
+    print('Data successfully loaded')
 
     print('Welcome to the ' + TEAM + ' music generator!')
     while True:
@@ -175,12 +232,12 @@ def main():
             userInput = int(raw_input(PROMPT))
             if userInput == 1:
                 # FIXME uncomment this line when ready
-                # runLyricsGenerator(lyricsModels)
-                print("Under construction")
+                runLyricsGenerator(lyricsModels)
+                #print("Under construction")
             elif userInput == 2:
                 # FIXME uncomment these lines when ready
-                # songName = raw_input('What would you like to name your song? ')
-                # runMusicGenerator(musicModels, WAVDIR + songName + '.wav')
+                songName = raw_input('What would you like to name your song? ')
+                runMusicGenerator(musicModels, WAVDIR + songName + '.wav')
                 print("Under construction")
             elif userInput == 3:
                 print('Thank you for using the ' + TEAM + ' music generator!')
