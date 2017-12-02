@@ -78,15 +78,16 @@ if __name__ == '__main__':
     # Add your test cases here
     text = [ ['the', 'quick', 'brown', 'fox'], ['the', 'lazy', 'dog'] ]
     text.append([ 'quick', 'brown' ])
+    text.append([ 'quick', 'brown', 'the', 'fox' ])
     sentence = [ 'lazy', 'quick' ]
     sentence1=[ 'wrong', 'right' ]
     sentence3=[ 'lazy', 'the']
     bigramModel = BigramModel()
-    bigramModel.trainModel(text)
-    print bigramModel.trainingDataHasNGram(sentence)
-    print bigramModel.trainingDataHasNGram(sentence1)
+    print bigramModel.trainModel(text)
+   # print bigramModel.trainingDataHasNGram(sentence)
+   # print bigramModel.trainingDataHasNGram(sentence1)
     print(bigramModel)
-    print bigramModel.getCandidateDictionary(sentence3)
-    print bigramModel.getCandidateDictionary(sentence)
+   # print bigramModel.getCandidateDictionary(sentence3)
+   # print bigramModel.getCandidateDictionary(sentence)
 
 

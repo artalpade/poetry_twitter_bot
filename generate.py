@@ -11,7 +11,7 @@ from models.bigramModel import *
 from models.trigramModel import *
 
 # FIXME Add your team name
-TEAM = 'YOUR NAME HERE'
+TEAM = 'Tony the Creator + Others'
 LYRICSDIRS = ['the_beatles']
 MUSICDIRS = ['gamecube']
 WAVDIR = 'wav/'
@@ -116,19 +116,6 @@ def generateLyricalSentence(models, desiredLength):
               For more details about generating a sentence using the
               NGramModels, see the spec.
     """
-    """""
-    sentence = ['^::^', '^:::^']
-    resultList = sentence
-    while  not sentenceTooLong(desiredLength, len(sentence)):
-        model = selectNGramModel(models, sentence)
-        models.remove(model)
-        while not sentenceTooLong(desiredLength, len(sentence)) and model.getNextToken != '^::^' and model.getNextToken != '^:::^' and model.getNextToken != '$:::$':
-            resultList.append(model.getNextToken(sentence))
-        if model.getNextToken == '$:::$':
-            break
-        model = selectNGramModel(models, sentence)
-    return resultList
-"""
     # return a list of strings
     # loop until sentenceTooLong returns true or next token chose
     # adds a word
@@ -192,11 +179,11 @@ def runMusicGenerator(models, songName):
     Effects:  runs the music generator as following the details in the spec.
     """
     list = KEY_SIGNATURES.keys()
-    desiredLength = 5
+    desiredLength = 200
     value = random.choice(list)
     possiblePitches = KEY_SIGNATURES[value]
     tuplesList = generateMusicalSentence(models, desiredLength,possiblePitches)
-    pysynth.make_wav(tuplesList, songName)
+    pysynth.make_wav(tuplesList, fn=songName)
 
     pass
 
@@ -211,7 +198,6 @@ PROMPT = """
 > """
 
 def main():
-    print 'random'
     """
     Requires: Nothing
     Modifies: Nothing
@@ -233,12 +219,10 @@ def main():
             if userInput == 1:
                 # FIXME uncomment this line when ready
                 runLyricsGenerator(lyricsModels)
-                #print("Under construction")
             elif userInput == 2:
                 # FIXME uncomment these lines when ready
                 songName = raw_input('What would you like to name your song? ')
                 runMusicGenerator(musicModels, WAVDIR + songName + '.wav')
-                print("Under construction")
             elif userInput == 3:
                 print('Thank you for using the ' + TEAM + ' music generator!')
                 sys.exit()
