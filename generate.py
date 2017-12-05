@@ -119,18 +119,20 @@ def generateLyricalSentence(models, desiredLength):
     # return a list of strings
     # loop until sentenceTooLong returns true or next token chose
     # adds a word
-    results = []
+    results = ['^::^', '^:::^']
     sentence = selectNGramModel(models, ['^::^', '^:::^']).getNextToken(['^::^', '^:::^'])
 
 
     while sentence !='$:::$':
-        if sentenceTooLong(desiredLength, len(results)):
+        if sentenceTooLong(desiredLength, len(results)-2):
             break
         results.append(sentence)
         sentence = selectNGramModel(models, results).getNextToken(results)
-
+    results.remove('^::^')
+    results.remove('^:::^')
     return results
     pass
+
 
 def generateMusicalSentence(models, desiredLength, possiblePitches):
     """
