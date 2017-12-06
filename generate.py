@@ -145,7 +145,6 @@ def generateMusicalSentence(models, desiredLength, possiblePitches):
     results = ['^::^', '^:::^']
     sentence = selectNGramModel(models, ['^::^', '^:::^']).getNextNote(['^::^', '^:::^'], possiblePitches)
 
-    print desiredLength
     while sentence != '$:::$':
         if sentenceTooLong(desiredLength, len(results)):
             break
@@ -153,8 +152,6 @@ def generateMusicalSentence(models, desiredLength, possiblePitches):
         sentence = selectNGramModel(models, results).getNextNote(results, possiblePitches)
     results.remove('^::^')
     results.remove('^:::^')
-    print "results: ", results
-    print "sentence: ", sentence
     return results
     pass
 
