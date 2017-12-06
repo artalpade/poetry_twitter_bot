@@ -122,9 +122,8 @@ def generateLyricalSentence(models, desiredLength):
     results = ['^::^', '^:::^']
     sentence = selectNGramModel(models, ['^::^', '^:::^']).getNextToken(['^::^', '^:::^'])
 
-
     while sentence !='$:::$':
-        if sentenceTooLong(desiredLength, len(results)-2):
+        if sentenceTooLong(desiredLength, len(results)):
             break
         results.append(sentence)
         sentence = selectNGramModel(models, results).getNextToken(results)
@@ -143,15 +142,19 @@ def generateMusicalSentence(models, desiredLength, possiblePitches):
               function instead of getNextToken(). Everything else
               should be exactly the same as the core.
     """
-    results = []
+    results = ['^::^', '^:::^']
     sentence = selectNGramModel(models, ['^::^', '^:::^']).getNextNote(['^::^', '^:::^'], possiblePitches)
 
+    print desiredLength
     while sentence != '$:::$':
         if sentenceTooLong(desiredLength, len(results)):
             break
         results.append(sentence)
         sentence = selectNGramModel(models, results).getNextNote(results, possiblePitches)
-
+    results.remove('^::^')
+    results.remove('^:::^')
+    print "results: ", results
+    print "sentence: ", sentence
     return results
     pass
 

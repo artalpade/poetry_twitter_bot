@@ -144,7 +144,7 @@ class NGramModel(object):
         if constrainedCandidates != empty:
             return self.weightedChoice(constrainedCandidates)
         else:
-            tup = (random.choice(possiblePitches).append(4), random.choice(NOTE_DURATIONS))
+            tup = (random.choice(possiblePitches) + '4', random.choice(NOTE_DURATIONS))
             return tup
         pass
 
