@@ -34,7 +34,7 @@ class BigramModel(NGramModel):
         self.nGramCounts = {}
         sub_diction = {}
         for phrase in textData:
-            for i in range(1, len(phrase) - 1):
+            for i in range(0, len(phrase) - 1):
                 if self.nGramCounts.get(phrase[i], 0) == 0:
                     self.nGramCounts[phrase[i]] = {}
                 a = self.nGramCounts[phrase[i]].get(phrase[i + 1], 0) + 1
@@ -83,6 +83,7 @@ if __name__ == '__main__':
     sentence1=[ 'wrong', 'right' ]
     sentence3=[ 'lazy', 'the']
     bigramModel = BigramModel()
+   # print text
     print bigramModel.trainModel(text)
    # print bigramModel.trainingDataHasNGram(sentence)
    # print bigramModel.trainingDataHasNGram(sentence1)
