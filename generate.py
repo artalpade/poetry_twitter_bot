@@ -2,6 +2,7 @@
 import sys
 sys.dont_write_bytecode = True # Suppress .pyc files
 
+import tweepy
 import random
 from pysynth import pysynth
 from data.dataLoader import *
@@ -10,8 +11,16 @@ from models.unigramModel import *
 from models.bigramModel import *
 from models.trigramModel import *
 
+consumer_key = 'dkXRLqG8EgYC9GOmsR8kTqXV4'
+consumer_secret = 'sjyfYIQxuSn6qAbzo5iLEaFLWPVHLiJOak73nx61JZZhumfrpE'
+access_token = '938527466771177472-DeNwYIQJXnHxUF66aluqA9ZiCwMD0jc'
+access_token_secret = 'wmgWdLB56LPU00RwFpGuUzfwImX9Rgj05HxsZ6UtqM5xI'
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth)
+
 # FIXME Add your team name
-TEAM = 'Tony the Creator + Others'
+TEAM = 'BATT Productions'
 LYRICSDIRS = ['the_beatles']
 MUSICDIRS = ['gamecube']
 WAVDIR = 'wav/'
@@ -44,6 +53,19 @@ def printSongLyrics(verseOne, verseTwo, chorus):
         for line in verse:
             print (' '.join(line)).capitalize()
         print
+
+def genTweetSentence(listWords):
+    """
+    Requires: listWords which is a list of strings
+    Modifies: nothing
+    Effects: Returns a the list of strings as one string sentence
+    """
+    tweet_sentence = ''
+    for phrase in listWords:
+        for word in phrase:
+            tweet_sentence = tweet_sentence + word + ' '
+        tweet_sentence = tweet_sentence + '\n'
+    return tweet_sentence
 
 def trainLyricModels(lyricDirs):
     """
@@ -103,7 +125,7 @@ def selectNGramModel(models, sentence):
             return gram
     pass
 
-def generateLyricalSentence(models, desiredLength):
+def genLyricalSentence(models, desiredLength):
     """
     Requires: models is a list of trained NGramModel objects sorted by
               descending priority: tri-, then bi-, then unigrams.
