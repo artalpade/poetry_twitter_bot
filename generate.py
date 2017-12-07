@@ -12,7 +12,7 @@ from models.trigramModel import *
 
 # FIXME Add your team name
 TEAM = 'Tony the Creator + Others'
-LYRICSDIRS = ['the_beatles']
+LYRICSDIRS = ['Bob_Dylan']
 MUSICDIRS = ['gamecube']
 WAVDIR = 'wav/'
 
@@ -38,7 +38,7 @@ def printSongLyrics(verseOne, verseTwo, chorus):
     Modifies: nothing
     Effects:  prints the song. This function is done for you.
     """
-    verses = [verseOne, chorus, verseTwo]
+    verses = [verseTwo]
     print
     for verse in verses:
         for line in verse:
@@ -165,13 +165,13 @@ def runLyricsGenerator(models):
 
     verseOne = []
     for x in range(0, 1):
-        verseOne.append(generateLyricalSentence(models, 6))
+        verseOne.append(generateLyricalSentence(models, 10))
     verseTwo = []
-    for x in range(0, 1):
-        verseTwo.append(generateLyricalSentence(models, 6))
+    for x in range(0, 6):
+        verseTwo.append(generateLyricalSentence(models, 10))
     chorus = []
     for x in range(0, 1):
-        chorus.append(generateLyricalSentence(models, 6))
+        chorus.append(generateLyricalSentence(models, 10))
     printSongLyrics(verseOne, verseTwo, chorus)
 
 def runMusicGenerator(models, songName):
