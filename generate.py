@@ -47,7 +47,7 @@ def printSongLyrics(verseOne, verseTwo, chorus):
     Modifies: nothing
     Effects:  prints the song. This function is done for you.
     """
-    verses = [verseOne, chorus, verseTwo, chorus]
+    verses = [verseOne, chorus, verseTwo]
     print
     for verse in verses:
         for line in verse:
@@ -186,13 +186,13 @@ def runLyricsGenerator(models):
     """
 
     verseOne = []
-    for x in range(0, 4):
+    for x in range(0, 1):
         verseOne.append(generateLyricalSentence(models, 6))
     verseTwo = []
-    for x in range(0, 4):
+    for x in range(0, 1):
         verseTwo.append(generateLyricalSentence(models, 6))
     chorus = []
-    for x in range(0, 4):
+    for x in range(0, 1):
         chorus.append(generateLyricalSentence(models, 6))
     printSongLyrics(verseOne, verseTwo, chorus)
 
