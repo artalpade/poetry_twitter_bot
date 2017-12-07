@@ -20,8 +20,13 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 # FIXME Add your team name
+<<<<<<< HEAD
 TEAM = 'BATT Productions'
 LYRICSDIRS = ['the_beatles']
+=======
+TEAM = 'Tony the Creator + Others'
+LYRICSDIRS = ['Bob_Dylan']
+>>>>>>> d98d9a726ab0c4dcd586226d80d058f043794aed
 MUSICDIRS = ['gamecube']
 WAVDIR = 'wav/'
 
@@ -47,7 +52,7 @@ def printSongLyrics(verseOne, verseTwo, chorus):
     Modifies: nothing
     Effects:  prints the song. This function is done for you.
     """
-    verses = [verseOne, chorus, verseTwo]
+    verses = [verseTwo]
     print
     for verse in verses:
         for line in verse:
@@ -187,13 +192,13 @@ def runLyricsGenerator(models):
 
     verseOne = []
     for x in range(0, 1):
-        verseOne.append(generateLyricalSentence(models, 6))
+        verseOne.append(generateLyricalSentence(models, 10))
     verseTwo = []
-    for x in range(0, 1):
-        verseTwo.append(generateLyricalSentence(models, 6))
+    for x in range(0, 6):
+        verseTwo.append(generateLyricalSentence(models, 10))
     chorus = []
     for x in range(0, 1):
-        chorus.append(generateLyricalSentence(models, 6))
+        chorus.append(generateLyricalSentence(models, 10))
     printSongLyrics(verseOne, verseTwo, chorus)
 
 def runMusicGenerator(models, songName):
