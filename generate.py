@@ -225,6 +225,16 @@ PROMPT = """
 > """
 
 def main():
+    twts = api.search(q="Bavish1")
+
+#list of specific strings we want to check for in Tweets
+
+
+    for s in twts:
+        if 'Bavish1' == s.text:
+            sn = s.user.screen_name
+            m = "@%s Hello!" % (sn)
+            s = api.update_status(m, s.id)
     """
     Requires: Nothing
     Modifies: Nothing
