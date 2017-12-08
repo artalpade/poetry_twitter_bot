@@ -24,7 +24,7 @@ api = tweepy.API(auth)
 TEAM = 'BATT Productions'
 LYRICSDIRS = ['the_beatles']
 TEAM = 'Tony the Creator + Others'
-LYRICSDIRS = ['Bob_Dylan']
+DYLANLYRICSDIRS = ['Bob_Dylan']
 MUSICDIRS = ['gamecube']
 WAVDIR = 'wav/'
 
@@ -199,6 +199,25 @@ def runLyricsGenerator(models):
         chorus.append(generateLyricalSentence(models, 10))
     printSongLyrics(verseOne, verseTwo, chorus)
 
+def runLyricalTweetGenerator(models):
+    """
+    Requires: models is a list of a trained nGramModel child class objects
+    Modifies: nothing
+    Effects:  generates a verse one, a verse two, and a chorus, then
+              calls genTweetSentence and update_status to tweet a verse.
+    """
+
+    verseOne = []
+    for x in range(0, 4):
+        verseOne.append(generateLyricalSentence(models, 10))
+    verseTwo = []
+    for x in range(0, 6):
+        verseTwo.append(generateLyricalSentence(models, 10))
+    chorus = []
+    for x in range(0, 1):
+        chorus.append(generateLyricalSentence(models, 10))
+    api.update_status(genTweetSentence(verseOne))
+
 def runMusicGenerator(models, songName):
     """
     Requires: models is a list of trained models
@@ -220,8 +239,9 @@ def runMusicGenerator(models, songName):
 
 PROMPT = """
 (1) Generate song lyrics by The Beatles
-(2) Generate a song using data from Nintendo Gamecube
-(3) Quit the music generator
+(2) Run the TweetBot
+(3) Generate a song using data from Nintendo Gamecube
+(4) Quit the music generator
 > """
 
 def main():
@@ -229,12 +249,13 @@ def main():
 
 #list of specific strings we want to check for in Tweets
 
-
+    '''
     for s in twts:
         if 'Bavish1' == s.text:
             sn = s.user.screen_name
             m = "@%s Hello!" % (sn)
             s = api.update_status(m, s.id)
+    '''
     """
     Requires: Nothing
     Modifies: Nothing
@@ -247,6 +268,7 @@ def main():
     print('Starting program and loading data...')
     lyricsModels = trainLyricModels(LYRICSDIRS)
     musicModels = trainMusicModels(MUSICDIRS)
+    dylanModels = trainLyricModels(DYLANLYRICSDIRS)
     print('Data successfully loaded')
 
     print('Welcome to the ' + TEAM + ' music generator!')
@@ -254,13 +276,13 @@ def main():
         try:
             userInput = int(raw_input(PROMPT))
             if userInput == 1:
-                # FIXME uncomment this line when ready
                 runLyricsGenerator(lyricsModels)
             elif userInput == 2:
-                # FIXME uncomment these lines when ready
-                songName = raw_input('What would you like to name your song? ')
-                runMusicGenerator(musicModels, WAVDIR + songName + '.wav')
+                runLyricalTweetGenerator(dylanModels)
             elif userInput == 3:
+                songName = raw_input('What would you like to name your song? ')
+                runMusicGenerator(musicModels, WAVDIR + songName + '.wav') 
+            elif userInput == 4:
                 print('Thank you for using the ' + TEAM + ' music generator!')
                 sys.exit()
             else:
