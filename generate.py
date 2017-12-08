@@ -4,12 +4,13 @@ sys.dont_write_bytecode = True # Suppress .pyc files
 
 import tweepy
 import random
+import StdOutListener
 from pysynth import pysynth
 from data.dataLoader import *
 from models.musicInfo import *
 from models.unigramModel import *
 from models.bigramModel import *
-from models.trigramModel import *
+from models.trigramModel import * 
 
 consumer_key = 'dkXRLqG8EgYC9GOmsR8kTqXV4'
 consumer_secret = 'sjyfYIQxuSn6qAbzo5iLEaFLWPVHLiJOak73nx61JZZhumfrpE'
@@ -20,13 +21,10 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 # FIXME Add your team name
-<<<<<<< HEAD
 TEAM = 'BATT Productions'
 LYRICSDIRS = ['the_beatles']
-=======
 TEAM = 'Tony the Creator + Others'
 LYRICSDIRS = ['Bob_Dylan']
->>>>>>> d98d9a726ab0c4dcd586226d80d058f043794aed
 MUSICDIRS = ['gamecube']
 WAVDIR = 'wav/'
 
@@ -130,7 +128,7 @@ def selectNGramModel(models, sentence):
             return gram
     pass
 
-def genLyricalSentence(models, desiredLength):
+def generateLyricalSentence(models, desiredLength):
     """
     Requires: models is a list of trained NGramModel objects sorted by
               descending priority: tri-, then bi-, then unigrams.
