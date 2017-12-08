@@ -20,13 +20,10 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 # FIXME Add your team name
-<<<<<<< HEAD
 TEAM = 'BATT Productions'
 LYRICSDIRS = ['the_beatles']
-=======
 TEAM = 'Tony the Creator + Others'
 LYRICSDIRS = ['Bob_Dylan']
->>>>>>> d98d9a726ab0c4dcd586226d80d058f043794aed
 MUSICDIRS = ['gamecube']
 WAVDIR = 'wav/'
 
@@ -130,7 +127,7 @@ def selectNGramModel(models, sentence):
             return gram
     pass
 
-def genLyricalSentence(models, desiredLength):
+def generateLyricalSentence(models, desiredLength):
     """
     Requires: models is a list of trained NGramModel objects sorted by
               descending priority: tri-, then bi-, then unigrams.
@@ -227,6 +224,16 @@ PROMPT = """
 > """
 
 def main():
+    twts = api.search(q="Bavish1")
+
+#list of specific strings we want to check for in Tweets
+
+
+    for s in twts:
+        if 'Bavish1' == s.text:
+            sn = s.user.screen_name
+            m = "@%s Hello!" % (sn)
+            s = api.update_status(m, s.id)
     """
     Requires: Nothing
     Modifies: Nothing
