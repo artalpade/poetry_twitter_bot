@@ -27,29 +27,28 @@ WAVDIR = 'wav/'
 
 def sentenceTooLong(desiredLength, currentLength):
     """
-    Requires: nothing
-    Modifies: nothing
-    Effects:  returns a bool indicating whether or not this sentence should
-              be ended based on its length. This function has been done for
-              you.
-    """
+        Requires: nothing
+        Modifies: nothing
+        Effects:  returns a bool indicating whether or not this sentence should
+        be ended based on its length. This function has been done for
+        you.
+        """
     STDEV = 1
     val = random.gauss(currentLength, STDEV)
     return val > desiredLength
 
 def printSongLyrics(verseOne, verseTwo, chorus):
     """
-    Requires: verseOne, verseTwo, and chorus are lists of lists of strings
-    Modifies: nothing
-    Effects:  prints the song. This function is done for you.
-    """
-    verses = [verseTwo]
+        Requires: verseOne, verseTwo, and chorus are lists of lists of strings
+        Modifies: nothing
+        Effects:  prints the song. This function is done for you.
+        """
+    verses = [verseOne, chorus, verseTwo, chorus]
     print
     for verse in verses:
         for line in verse:
             print (' '.join(line)).capitalize()
         print
-
 
 
 def trainLyricModels(lyricDirs):
@@ -223,6 +222,11 @@ def genTweetSentence(listWords):
     return tweet_sentence
 
 def searchTweets(search, response):
+    """
+        Requires: something to search which is a keyboard inputted string and what to respond which is from gentweetsentence
+        Modifies: nothing
+        Effects: Searches for 'search' and the response is printed to the twitter screens
+        """
     print response
     twts = api.search(q=search)
     # list of specific strings we want to check for in Tweets
@@ -252,7 +256,7 @@ def runLyricalTweetGenerator(models):
 
 PROMPT = """
 (1) Generate song lyrics by The Beatles
-(2) Run the TweetBot
+(2) Run the TweetBot for Bob Dylan inspired poems
 (3) Generate a song using data from Nintendo Gamecube
 (4) Quit the music generator
 > """
