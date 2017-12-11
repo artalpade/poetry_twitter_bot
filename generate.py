@@ -12,13 +12,6 @@ from models.unigramModel import *
 from models.bigramModel import *
 from models.trigramModel import * 
 
-consumer_key = 'dkXRLqG8EgYC9GOmsR8kTqXV4'
-consumer_secret = 'sjyfYIQxuSn6qAbzo5iLEaFLWPVHLiJOak73nx61JZZhumfrpE'
-access_token = '938527466771177472-DeNwYIQJXnHxUF66aluqA9ZiCwMD0jc'
-access_token_secret = 'wmgWdLB56LPU00RwFpGuUzfwImX9Rgj05HxsZ6UtqM5xI'
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
-api = tweepy.API(auth)
 
 # FIXME Add your team name
 TEAM = 'BATT Productions'
@@ -57,18 +50,7 @@ def printSongLyrics(verseOne, verseTwo, chorus):
             print (' '.join(line)).capitalize()
         print
 
-def genTweetSentence(listWords):
-    """
-    Requires: listWords which is a list of strings
-    Modifies: nothing
-    Effects: Returns a the list of strings as one string sentence
-    """
-    tweet_sentence = ''
-    for phrase in listWords:
-        for word in phrase:
-            tweet_sentence = tweet_sentence + word + ' '
-        tweet_sentence = tweet_sentence + '\n'
-    return tweet_sentence
+
 
 def trainLyricModels(lyricDirs):
     """
@@ -167,6 +149,7 @@ def generateMusicalSentence(models, desiredLength, possiblePitches):
               function instead of getNextToken(). Everything else
               should be exactly the same as the core.
     """
+
     results = ['^::^', '^:::^']
     sentence = selectNGramModel(models, ['^::^', '^:::^']).getNextNote(['^::^', '^:::^'], possiblePitches)
 
@@ -199,24 +182,6 @@ def runLyricsGenerator(models):
         chorus.append(generateLyricalSentence(models, 10))
     printSongLyrics(verseOne, verseTwo, chorus)
 
-def runLyricalTweetGenerator(models):
-    """
-    Requires: models is a list of a trained nGramModel child class objects
-    Modifies: nothing
-    Effects:  generates a verse one, a verse two, and a chorus, then
-              calls genTweetSentence and update_status to tweet a verse.
-    """
-
-    verseOne = []
-    for x in range(0, 4):
-        verseOne.append(generateLyricalSentence(models, 10))
-    verseTwo = []
-    for x in range(0, 6):
-        verseTwo.append(generateLyricalSentence(models, 10))
-    chorus = []
-    for x in range(0, 1):
-        chorus.append(generateLyricalSentence(models, 10))
-    api.update_status(genTweetSentence(verseOne))
 
 def runMusicGenerator(models, songName):
     """
@@ -236,6 +201,54 @@ def runMusicGenerator(models, songName):
 ###############################################################################
 # Reach
 ###############################################################################
+consumer_key = 'dkXRLqG8EgYC9GOmsR8kTqXV4'
+consumer_secret = 'sjyfYIQxuSn6qAbzo5iLEaFLWPVHLiJOak73nx61JZZhumfrpE'
+access_token = '938527466771177472-DeNwYIQJXnHxUF66aluqA9ZiCwMD0jc'
+access_token_secret = 'wmgWdLB56LPU00RwFpGuUzfwImX9Rgj05HxsZ6UtqM5xI'
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth)
+
+def genTweetSentence(listWords):
+    """
+    Requires: listWords which is a list of strings
+    Modifies: nothing
+    Effects: Returns a the list of strings as one string sentence
+    """
+    tweet_sentence = ''
+    for phrase in listWords:
+        for word in phrase:
+            tweet_sentence = tweet_sentence + word + ' '
+        tweet_sentence = tweet_sentence + '\n'
+    return tweet_sentence
+
+def searchTweets(search, response):
+    print response
+    twts = api.search(q=search)
+    # list of specific strings we want to check for in Tweets
+    for s in twts:
+        if search.lower() in s.text.lower():
+            sn = s.user.screen_name
+            m = "@%s" % (sn) + " Here's a Bob Dylan inspired poem:\n\n" + response
+            s = api.update_status(m, s.id)
+            break
+    pass
+def runLyricalTweetGenerator(models):
+    """
+    Requires: models is a list of a trained nGramModel child class objects
+    Modifies: nothing
+    Effects:  generates a verse one, a verse two, and a chorus, then
+              calls genTweetSentence and update_status to tweet a verse.
+    """
+
+    verseOne = []
+    for x in range(0, 3):
+        verseOne.append(generateLyricalSentence(models, 12))
+    searchPrompt= 'What should we search for? '
+    search = raw_input(searchPrompt)
+    response=genTweetSentence(verseOne)
+    searchTweets(search, response)
+    print "Your response(s) have been posted!"
 
 PROMPT = """
 (1) Generate song lyrics by The Beatles
@@ -245,17 +258,8 @@ PROMPT = """
 > """
 
 def main():
-    twts = api.search(q="Bavish1")
-
 #list of specific strings we want to check for in Tweets
 
-    '''
-    for s in twts:
-        if 'Bavish1' == s.text:
-            sn = s.user.screen_name
-            m = "@%s Hello!" % (sn)
-            s = api.update_status(m, s.id)
-    '''
     """
     Requires: Nothing
     Modifies: Nothing
