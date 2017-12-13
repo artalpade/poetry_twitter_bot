@@ -16,8 +16,10 @@ from models.trigramModel import *
 
 # FIXME Add your team name
 TEAM = 'BATT Productions'
-LYRICSDIRS = ['the_beatles']
+BEATLESDIRS = ['the_beatles']
+CASHDIRS=['Johnny_Cash']
 DYLANLYRICSDIRS = ['Bob_Dylan']
+QUEENDIRS = ['Queen']
 MUSICDIRS = ['gamecube']
 WAVDIR = 'wav/'
 
@@ -37,18 +39,6 @@ def sentenceTooLong(desiredLength, currentLength):
     val = random.gauss(currentLength, STDEV)
     return val > desiredLength
 
-def printSongLyrics(verseOne, verseTwo, chorus):
-    """
-        Requires: verseOne, verseTwo, and chorus are lists of lists of strings
-        Modifies: nothing
-        Effects:  prints the song. This function is done for you.
-        """
-    verses = [verseOne, chorus, verseTwo, chorus]
-    print
-    for verse in verses:
-        for line in verse:
-            print (' '.join(line)).capitalize()
-        print
 
 
 def trainLyricModels(lyricDirs):
@@ -285,11 +275,11 @@ def during(tagged):
     Effects:  returns true if the grammar rules are not broken
     """
     if tagged[-1][1][0:2] == 'CC' and tagged[-2][1][0:2] == 'CC':
-        return true
+        return True
     if tagged[-1][1][0:2] == 'TO' and tagged[-2][1][0:2] == 'TO':
-        return true
+        return True
     if tagged[-1][1][0:3] == 'PRP' and tagged[-2][1][0:3] == 'PRP':
-        return true
+        return True
 
     pass
 
@@ -321,10 +311,14 @@ def searchTweets(search, response, x):
     for s in twts:
         if search.lower() in s.text.lower():
             sn = s.user.screen_name
-            if x==2:
-                m = "@%s" % (sn) + " Here's a Bob Dylan inspired poem:\n\n" + response
             if x==1:
                 m = "@%s" % (sn) + " Here's a Beatles inspired poem:\n\n" + response
+            if x==2:
+                m = "@%s" % (sn) + " Here's a Bob Dylan inspired poem:\n\n" + response
+            if x==3:
+                m = "@%s" % (sn) + " Here's a Johnny Cash inspired poem:\n\n" + response
+            if x==4:
+                m = "@%s" % (sn) + " Here's a Queen inspired poem:\n\n" + response
             s = api.update_status(m, s.id)
             break
 
@@ -346,8 +340,35 @@ def runTweetGenerator(models, num):
     searchTweets(search, response, num)
     print "Your response(s) have been posted!"
 
+def choiceOne():
+
+
+    while True:
+        try:
+            userInput2 = int(raw_input(PROMPT2))
+            if userInput2 ==1:
+                runMaster(BEATLESDIRS,userInput2)
+            elif userInput2 ==2:
+                runMaster(DYLANLYRICSDIRS,userInput2)
+            elif userInput2 ==3:
+                runMaster(CASHDIRS,userInput2)
+            elif userInput2 ==4:
+                runMaster(QUEENDIRS,userInput2)
+            elif userInput2 == 5:
+                print('Thank you for using the ' + TEAM + ' music generator!')
+                sys.exit()
+        except ValueError:
+            print("Please enter a number")
+
+
+def runMaster(dirc, input):
+    print('Starting program and loading data...')
+    model = trainLyricModels(dirc)
+    print('Data successfully loaded')
+    runTweetGenerator(model, input)
+
 PROMPT = """
-(1) Run the TweetBot for either The Beatles or Bob Dylan inspired poems
+(1) Run the TweetBot for either Artist inspired poems
 (2) Generate a song using data from Nintendo Gamecube
 (3) Quit the music generator
 > """
@@ -355,6 +376,11 @@ PROMPT = """
 PROMPT2 = """
 (1) Run the TweetBot for The Beatles
 (2) Run the TweetBot for Bob Dylan
+(3) Run the TweetBot for Johnny Cash
+(4) Run the TweetBot for Queen
+(5) Exit the TweetBot
+
+
 > """
 def main():
 #list of specific strings we want to check for in Tweets
@@ -368,25 +394,18 @@ def main():
               It prompts the user to choose to generate either lyrics or music.
     """
     
-    print('Starting program and loading data...')
-    lyricsModels = trainLyricModels(LYRICSDIRS)
-    musicModels = trainMusicModels(MUSICDIRS)
-    dylanModels = trainLyricModels(DYLANLYRICSDIRS)
-    print('Data successfully loaded')
 
 
-
-    print('Welcome to the ' + TEAM + ' music generator!')
+    print('Welcome to the ' + TEAM + 'Poetry and Music generator!')
     while True:
         try:
             userInput = int(raw_input(PROMPT))
             if userInput == 1:
-                userInput2 = int(raw_input(PROMPT2))
-                if userInput2 ==2:
-                    runTweetGenerator(dylanModels, userInput)
-                if userInput2 ==1:
-                    runTweetGenerator(lyricsModels, userInput)
+                choiceOne()
             elif userInput == 2:
+                print('Starting program and loading data...')
+                musicModels = trainMusicModels(MUSICDIRS)
+                print('Data successfully loaded')
                 songName = raw_input('What would you like to name your song? ')
                 runMusicGenerator(musicModels, WAVDIR + songName + '.wav') 
             elif userInput == 3:
