@@ -17,7 +17,6 @@ from models.trigramModel import *
 # FIXME Add your team name
 TEAM = 'BATT Productions'
 LYRICSDIRS = ['the_beatles']
-TEAM = 'Tony the Creator + Others'
 DYLANLYRICSDIRS = ['Bob_Dylan']
 MUSICDIRS = ['gamecube']
 WAVDIR = 'wav/'
@@ -210,7 +209,27 @@ def runMusicGenerator(models, songName):
 
     pass
 
+
+###############################################################################
+# Reach
+###############################################################################
+consumer_key = 'dkXRLqG8EgYC9GOmsR8kTqXV4'
+consumer_secret = 'sjyfYIQxuSn6qAbzo5iLEaFLWPVHLiJOak73nx61JZZhumfrpE'
+access_token = '938527466771177472-DeNwYIQJXnHxUF66aluqA9ZiCwMD0jc'
+access_token_secret = 'wmgWdLB56LPU00RwFpGuUzfwImX9Rgj05HxsZ6UtqM5xI'
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth)
+
 def after (tagged, results):
+    """
+    Requires: results is a list of strings
+              tagged is a list of tuples that contains results's strings
+              and their respective part of speech
+    Modifies: nothing
+    Effects:  returns results with edited grammar or empty if the sentence
+              is too short
+    """
     endWord=''
     begWord=''
 
@@ -247,14 +266,24 @@ def after (tagged, results):
     pass
 
 def tag(results):
+    """
+    Requires: results is a list of strings
+    Modifies: nothing
+    Effects:  returns a tuple that contains results with each index's part
+              of speech
+    """
     tagged = nltk.pos_tag(results)
     tagged[0] = ('blank', 'FW')
     tagged[1] = ('blank', 'FW')
     return tagged
     pass
 
-
 def during(tagged):
+    """
+    Requires: tagged is a list of tuples
+    Modifies: nothing
+    Effects:  returns true if the grammar rules are not broken
+    """
     if tagged[-1][1][0:2] == 'CC' and tagged[-2][1][0:2] == 'CC':
         return true
     if tagged[-1][1][0:2] == 'TO' and tagged[-2][1][0:2] == 'TO':
@@ -263,20 +292,6 @@ def during(tagged):
         return true
 
     pass
-
-
-
-
-###############################################################################
-# Reach
-###############################################################################
-consumer_key = 'dkXRLqG8EgYC9GOmsR8kTqXV4'
-consumer_secret = 'sjyfYIQxuSn6qAbzo5iLEaFLWPVHLiJOak73nx61JZZhumfrpE'
-access_token = '938527466771177472-DeNwYIQJXnHxUF66aluqA9ZiCwMD0jc'
-access_token_secret = 'wmgWdLB56LPU00RwFpGuUzfwImX9Rgj05HxsZ6UtqM5xI'
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
-api = tweepy.API(auth)
 
 def genTweetSentence(listWords):
     """
@@ -291,11 +306,13 @@ def genTweetSentence(listWords):
         tweet_sentence = tweet_sentence + '\n'
     return tweet_sentence
 
-def searchTweets(search, response):
+def searchTweets(search, response, x):
     """
-        Requires: something to search which is a keyboard inputted string and what to respond which is from gentweetsentence
+        Requires: something to search which is a keyboard inputted string
+                  and what to respond which is from gentweetsentence
         Modifies: nothing
-        Effects: Searches for 'search' and the response is printed to the twitter screens
+        Effects:  Searches for 'search' and the response is printed to the
+                  twitter screens
         """
     print response
 
@@ -304,12 +321,15 @@ def searchTweets(search, response):
     for s in twts:
         if search.lower() in s.text.lower():
             sn = s.user.screen_name
-            m = "@%s" % (sn) + " Here's a Bob Dylan inspired poem:\n\n" + response
+            if x==2:
+                m = "@%s" % (sn) + " Here's a Bob Dylan inspired poem:\n\n" + response
+            if x==1:
+                m = "@%s" % (sn) + " Here's a Beatles inspired poem:\n\n" + response
             s = api.update_status(m, s.id)
             break
 
-pass
-def runLyricalTweetGenerator(models):
+    pass
+def runTweetGenerator(models, num):
     """
     Requires: models is a list of a trained nGramModel child class objects
     Modifies: nothing
@@ -323,16 +343,19 @@ def runLyricalTweetGenerator(models):
     searchPrompt= 'What should we search for? '
     search = raw_input(searchPrompt)
     response=genTweetSentence(verseOne)
-    searchTweets(search, response)
+    searchTweets(search, response, num)
     print "Your response(s) have been posted!"
 
 PROMPT = """
-(1) Generate song lyrics by The Beatles
-(2) Run the TweetBot for Bob Dylan inspired poems
-(3) Generate a song using data from Nintendo Gamecube
-(4) Quit the music generator
+(1) Run the TweetBot for either The Beatles or Bob Dylan inspired poems
+(2) Generate a song using data from Nintendo Gamecube
+(3) Quit the music generator
 > """
 
+PROMPT2 = """
+(1) Run the TweetBot for The Beatles
+(2) Run the TweetBot for Bob Dylan
+> """
 def main():
 #list of specific strings we want to check for in Tweets
 
@@ -344,25 +367,29 @@ def main():
 
               It prompts the user to choose to generate either lyrics or music.
     """
-    # FIXME uncomment these lines when ready
+    
     print('Starting program and loading data...')
     lyricsModels = trainLyricModels(LYRICSDIRS)
     musicModels = trainMusicModels(MUSICDIRS)
     dylanModels = trainLyricModels(DYLANLYRICSDIRS)
     print('Data successfully loaded')
 
+
+
     print('Welcome to the ' + TEAM + ' music generator!')
     while True:
         try:
             userInput = int(raw_input(PROMPT))
             if userInput == 1:
-                runLyricsGenerator(lyricsModels)
+                userInput2 = int(raw_input(PROMPT2))
+                if userInput2 ==2:
+                    runTweetGenerator(dylanModels, userInput)
+                if userInput2 ==1:
+                    runTweetGenerator(lyricsModels, userInput)
             elif userInput == 2:
-                runLyricalTweetGenerator(dylanModels)
-            elif userInput == 3:
                 songName = raw_input('What would you like to name your song? ')
                 runMusicGenerator(musicModels, WAVDIR + songName + '.wav') 
-            elif userInput == 4:
+            elif userInput == 3:
                 print('Thank you for using the ' + TEAM + ' music generator!')
                 sys.exit()
             else:
