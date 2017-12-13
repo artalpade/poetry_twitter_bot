@@ -4,6 +4,7 @@ sys.dont_write_bytecode = True # Suppress .pyc files
 
 import tweepy
 import random
+import nltk
 import StdOutListener
 from pysynth import pysynth
 from data.dataLoader import *
@@ -125,17 +126,29 @@ def generateLyricalSentence(models, desiredLength):
     # return a list of strings
     # loop until sentenceTooLong returns true or next token chose
     # adds a word
+    models = models
+    desiredLength = desiredLength
     results = ['^::^', '^:::^']
     sentence = selectNGramModel(models, ['^::^', '^:::^']).getNextToken(['^::^', '^:::^'])
-
+    tagged = tag(results)
     while sentence !='$:::$':
         if sentenceTooLong(desiredLength, len(results)):
             break
         results.append(sentence)
+        tagged = tag(results)
+        if during(tagged):
+            del results[-1]
+            del tagged[-1]
         sentence = selectNGramModel(models, results).getNextToken(results)
     results.remove('^::^')
     results.remove('^:::^')
-    return results
+    del tagged[0]
+    del tagged[0]
+    results2 = after(tagged, results)
+    empty = []
+    if results2 == empty:
+        results2 = generateLyricalSentence(models, desiredLength)
+    return results2
     pass
 
 
@@ -171,13 +184,13 @@ def runLyricsGenerator(models):
     """
 
     verseOne = []
-    for x in range(0, 1):
+    for x in range(0, 6):
         verseOne.append(generateLyricalSentence(models, 10))
     verseTwo = []
     for x in range(0, 6):
         verseTwo.append(generateLyricalSentence(models, 10))
     chorus = []
-    for x in range(0, 1):
+    for x in range(0, 6):
         chorus.append(generateLyricalSentence(models, 10))
     printSongLyrics(verseOne, verseTwo, chorus)
 
@@ -196,6 +209,63 @@ def runMusicGenerator(models, songName):
     pysynth.make_wav(tuplesList, fn=songName)
 
     pass
+
+def after (tagged, results):
+    endWord=''
+    begWord=''
+
+    while results[-1] != endWord or results[0] != begWord:
+        endWord = results[-1]
+        begWord = results[0]
+        if tagged[0][1][0:2] == 'CC':
+            del results[0]
+            del tagged[0]
+        if tagged[-1][1][0:2] == 'CC':
+            del results[-1]
+            del tagged[-1]
+        if tagged[-1][1][0:2] == 'IN':
+            del results[-1]
+            del tagged[-1]
+        if tagged[-1][1][0:2] == 'TO':
+            del results[-1]
+            del tagged[-1]
+        if tagged[-1][1][0:2] == 'DT':
+            del results[-1]
+            del tagged[-1]
+        if tagged[-1][1][0:3] == 'PRP':
+            del results[-1]
+            del tagged[-1]
+    for item in range(0,len(tagged)):
+        if tagged[item][1][0:2] == 'NN':
+            if len(results) > 3:
+                return results
+
+    for item in range(0,len(results)):
+        del results[0]
+    return results
+
+    pass
+
+def tag(results):
+    tagged = nltk.pos_tag(results)
+    tagged[0] = ('blank', 'FW')
+    tagged[1] = ('blank', 'FW')
+    return tagged
+    pass
+
+
+def during(tagged):
+    if tagged[-1][1][0:2] == 'CC' and tagged[-2][1][0:2] == 'CC':
+        return true
+    if tagged[-1][1][0:2] == 'TO' and tagged[-2][1][0:2] == 'TO':
+        return true
+    if tagged[-1][1][0:3] == 'PRP' and tagged[-2][1][0:3] == 'PRP':
+        return true
+
+    pass
+
+
+
 
 ###############################################################################
 # Reach
@@ -228,6 +298,7 @@ def searchTweets(search, response):
         Effects: Searches for 'search' and the response is printed to the twitter screens
         """
     print response
+
     twts = api.search(q=search)
     # list of specific strings we want to check for in Tweets
     for s in twts:
@@ -236,7 +307,8 @@ def searchTweets(search, response):
             m = "@%s" % (sn) + " Here's a Bob Dylan inspired poem:\n\n" + response
             s = api.update_status(m, s.id)
             break
-    pass
+
+pass
 def runLyricalTweetGenerator(models):
     """
     Requires: models is a list of a trained nGramModel child class objects
