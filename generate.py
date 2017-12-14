@@ -393,7 +393,7 @@ def runMaster(dirc, input):
     runTweetGenerator(model, input)
 
 PROMPT = """
-(1) Run the TweetBot for either Artist inspired poems
+(1) Run the TweetBot for Artist inspired poems
 (2) Generate a song using data from Nintendo Gamecube
 (3) Quit the music generator
 > """
