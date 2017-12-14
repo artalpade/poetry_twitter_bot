@@ -12,7 +12,8 @@ from models.musicInfo import *
 from models.unigramModel import *
 from models.bigramModel import *
 from models.trigramModel import * 
-
+from nltk.corpus import cmudict
+pronDict = cmudict.entries()
 
 # FIXME Add your team name
 TEAM = 'BATT Productions'
@@ -59,8 +60,11 @@ def trainLyricModels(lyricDirs):
               Returns the list of trained models.
     """
     models = [TrigramModel(), BigramModel(), UnigramModel()]
+    global uniList
+    uniList = []
     for ldir in lyricDirs:
         lyrics = loadLyrics(ldir)
+        uniList.append(lyrics)
         for model in models:
             model.trainModel(lyrics)
     return models
@@ -104,7 +108,7 @@ def selectNGramModel(models, sentence):
             return gram
     pass
 
-def generateLyricalSentence(models, desiredLength):
+def generateLyricalSentence(models, desiredLength, last_word = ''):
     """
     Requires: models is a list of trained NGramModel objects sorted by
               descending priority: tri-, then bi-, then unigrams.
@@ -136,6 +140,9 @@ def generateLyricalSentence(models, desiredLength):
         sentence = selectNGramModel(models, results).getNextToken(results)
     results.remove('^::^')
     results.remove('^:::^')
+    k = get_Rhyme(last_word, uniList, pronDict)
+    if k != None:
+        results.append(k)
     del tagged[0]
     del tagged[0]
     results2 = after(tagged, results)
@@ -215,6 +222,110 @@ access_token_secret = 'wmgWdLB56LPU00RwFpGuUzfwImX9Rgj05HxsZ6UtqM5xI'
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
+
+def getPronunciation(in_word, entries):
+    """
+    Requires: in_word which is a string and entries which is a list from NLTK
+    Modifies: nothing
+    Effects: Searches entries for the correspoding pronounciation of in_word
+    and returns the pronounciation. 
+    """
+    for word, pron in entries:
+        if word == in_word:
+            return pron
+    pass
+
+def check_rhymes(word1, word2, entries):
+    """
+    Requires: two strings and a list of entries from NLTK 
+    Modifies: nothing
+    Effects: Iterates through entries to find words that are pronounced similarly
+    to word1. Any word with 2 or more sound matches is added to matches. The list
+    matches is then searched for word2. If word1 is not found in entries for
+    pronounciation, or word2 is not found in matches, this will return false.
+    Otherwise, if word2 is found in matches, returns true. 
+    """ 
+    in_pron = getPronunciation(word1, entries)
+    if in_pron is None:
+        return False # word not in corpus
+    matches = []
+    for word, pron in entries:
+        if word == word1:
+            continue
+        i=1 # reverse iterator
+        n=0 # number of consecutive matching syllables
+        while True:      
+            if len(in_pron) < i or len(pron) < i:
+                break
+            elif pron[-i] <> in_pron[-i]:
+                break
+            else:
+                i+=1
+                n+=1
+            if n>0:
+                matches.append((word))
+    for element in matches:
+        if word2 == element:
+            return True
+    return False
+    pass
+
+def trainUnigramModels(lyricDirs):
+    """
+    Requires: lyricDirs is a list of directories in data/lyrics/
+    Modifies: nothing
+    Effects:  loads data from the folders in the lyricDirs list,
+              using the pre-written DataLoader class, then creates an
+              instance ofunigrams and trains themusing the text loaded
+              from the data loader.
+              Returns the list of trained unigram models.
+    """
+    models = [UnigramModel()]
+    for ldir in lyricDirs:
+        lyrics = loadLyrics(ldir)
+        for model in models:
+            model.trainModel(lyrics)
+    return models
+
+def get_Rhyme(word1, wordList, entries):
+    """
+    Requires: A string, and a list of possible words to rhyme with,
+    and a list of entries from NLTK 
+    Modifies: nothing
+    Effects: Iterates through entries to find words that are pronounced similarly
+    to word1. Any word with 2 or more sound matches is added to matches. The list
+    matches is then searched for word2. If word1 is not found in entries for
+    pronounciation, or word2 is not found in matches, this will return false.
+    Otherwise, if word2 is found in matches, returns true. 
+    """ 
+    in_pron = getPronunciation(word1, entries)
+    random.shuffle(wordList)
+    if in_pron is None:
+        return None # word not in corpus
+    matches = []
+    for word, pron in entries:
+        if word == word1:
+            continue
+        i=1 # reverse iterator
+        n=0 # number of consecutive matching syllables
+        while True:      
+            if len(in_pron) < i or len(pron) < i:
+                break
+            elif pron[-i] <> in_pron[-i]:
+                break
+            else:
+                i+=1
+                n+=1
+            if n>2:
+                matches.append((word))
+    for sentence in wordList:
+        for lyric in sentence:
+            for w in lyric:
+                for element in matches:
+                    if w == element:
+                        return w
+    return None
+    pass
 
 def after (tagged, results):
     """
@@ -348,7 +459,10 @@ def runTweetGenerator(models, num):
 
     verseOne = []
     for x in range(0, 3):
-        verseOne.append(generateLyricalSentence(models, 12))
+        if x > 0:
+            verseOne.append(generateLyricalSentence(models, 10, verseOne[x-1][-1]))
+        else:
+            verseOne.append(generateLyricalSentence(models, 12))
     searchPrompt= 'What should we search for? '
     search = raw_input(searchPrompt)
     response=genTweetSentence(verseOne)
