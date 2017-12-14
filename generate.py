@@ -20,6 +20,11 @@ BEATLESDIRS = ['the_beatles']
 CASHDIRS=['Johnny_Cash']
 DYLANLYRICSDIRS = ['Bob_Dylan']
 QUEENDIRS = ['Queen']
+SIMONDIRS =['Paul_Simon']
+JACKSONDIRS=['Michael_Jackson']
+KANYEDIRS=['Kanye_West']
+EMINEMDIRS=['Eminem']
+BEYDIRS=['Beyonce']
 MUSICDIRS = ['gamecube']
 WAVDIR = 'wav/'
 
@@ -313,12 +318,22 @@ def searchTweets(search, response, x):
             sn = s.user.screen_name
             if x==1:
                 m = "@%s" % (sn) + " Here's a Beatles inspired poem:\n\n" + response
-            if x==2:
+            elif x==2:
                 m = "@%s" % (sn) + " Here's a Bob Dylan inspired poem:\n\n" + response
-            if x==3:
+            elif x==3:
                 m = "@%s" % (sn) + " Here's a Johnny Cash inspired poem:\n\n" + response
-            if x==4:
+            elif x==4:
                 m = "@%s" % (sn) + " Here's a Queen inspired poem:\n\n" + response
+            elif x==5:
+                m = "@%s" % (sn) + " Here's a Michael Jackson inspired poem:\n\n" + response
+            elif x==6:
+                m = "@%s" % (sn) + " Here's a Eminem inspired poem:\n\n" + response
+            elif x==7:
+                m = "@%s" % (sn) + " Here's a Kanye West inspired poem:\n\n" + response
+            elif x==8:
+                m = "@%s" % (sn) + " Here's a Beyonce inspired poem:\n\n" + response
+            elif x==9:
+                m = "@%s" % (sn) + " Here's a Paul Simon inspired poem:\n\n" + response
             s = api.update_status(m, s.id)
             break
 
@@ -354,7 +369,17 @@ def choiceOne():
                 runMaster(CASHDIRS,userInput2)
             elif userInput2 ==4:
                 runMaster(QUEENDIRS,userInput2)
-            elif userInput2 == 5:
+            elif userInput2 ==5:
+                runMaster(JACKSONDIRS,userInput2)
+            elif userInput2 ==6:
+                runMaster(EMINEMDIRS,userInput2)
+            elif userInput2 ==7:
+                runMaster(KANYEDIRS,userInput2)
+            elif userInput2 ==8:
+                runMaster(BEYDIRS,userInput2)
+            elif userInput2 ==9:
+                runMaster(SIMONDIRS,userInput2)
+            elif userInput2 == 10:
                 print('Thank you for using the ' + TEAM + ' music generator!')
                 sys.exit()
         except ValueError:
@@ -378,7 +403,12 @@ PROMPT2 = """
 (2) Run the TweetBot for Bob Dylan
 (3) Run the TweetBot for Johnny Cash
 (4) Run the TweetBot for Queen
-(5) Exit the TweetBot
+(5) Run the TweetBot for Michael Jackson
+(6) Run the TweetBot for Eminem
+(7) Run the TweetBot for Kanye West
+(8) Run the TweetBot for Beyonce
+(9) Run the TweetBot for Paul Simon
+(10) Exit the TweetBot
 
 
 > """
